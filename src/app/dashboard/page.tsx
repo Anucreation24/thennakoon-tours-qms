@@ -152,7 +152,7 @@ export default function DashboardPage() {
 
           {recentQuotes.length === 0 ? (
             <div className="py-8 text-center text-zinc-500 text-sm">
-              No quotations created yet. Click "New Quotation" to start.
+              No quotations created yet. Click &quot;New Quotation&quot; to start.
             </div>
           ) : (
             <div className="overflow-x-auto">

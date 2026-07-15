@@ -91,7 +91,6 @@ export default function ConvertPage() {
 
       setProgressMsg('Updating company settings with the new background image...');
 
-      // 6. Update company settings
       const { error: dbError } = await supabase
         .from('company_settings')
         .update({
@@ -102,9 +101,17 @@ export default function ConvertPage() {
 
       if (dbError) throw dbError;
 
+      // Trigger automatic browser download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = 'letterhead.png';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
       setLetterheadUrl(publicUrl);
       setStatus('success');
-      setProgressMsg('Conversion and configuration completed successfully!');
+      setProgressMsg('Conversion completed. A high-quality letterhead.png has been downloaded to your browser.');
     } catch (err: any) {
       console.error(err);
       setStatus('error');

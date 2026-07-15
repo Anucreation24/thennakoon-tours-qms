@@ -33,16 +33,25 @@ export async function generateQuotationPdf(quotation: any, download = false) {
   const pageHeight = 297;
 
   // 2. Render Letterhead Background
-  const letterheadUrl = quotation.company_snapshot?.letterhead_image_url;
   const letterheadEnabled = quotation.company_snapshot?.letterhead_enabled !== false;
 
-  if (letterheadEnabled && letterheadUrl) {
+  if (letterheadEnabled) {
     try {
-      const base64Letterhead = await getBase64ImageFromUrl(letterheadUrl);
-      doc.addImage(base64Letterhead, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+      let base64Letterhead = '';
+      try {
+        base64Letterhead = await getBase64ImageFromUrl('/images/letterhead.png');
+      } catch (err) {
+        const letterheadUrl = quotation.company_snapshot?.letterhead_image_url;
+        if (letterheadUrl) {
+          base64Letterhead = await getBase64ImageFromUrl(letterheadUrl);
+        }
+      }
+
+      if (base64Letterhead) {
+        doc.addImage(base64Letterhead, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+      }
     } catch (e) {
       console.error('Error loading letterhead background image:', e);
-      // Fail silently and render on white background
     }
   }
 

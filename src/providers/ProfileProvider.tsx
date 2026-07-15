@@ -85,7 +85,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
           } else {
             setProfile(null);
             setLoading(false);
-            if (pathname !== '/login') {
+            if (pathname !== '/login' && pathname !== '/owner-setup') {
               router.push('/login');
             }
           }

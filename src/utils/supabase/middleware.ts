@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protect routes:
   // If not logged in and trying to access dashboard/admin routes, redirect to login
-  if (!user && !url.pathname.startsWith('/login') && url.pathname !== '/favicon.ico') {
+  if (!user && !url.pathname.startsWith('/login') && !url.pathname.startsWith('/owner-setup') && url.pathname !== '/favicon.ico') {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
