@@ -91,9 +91,9 @@ export async function generateQuotationPdf(quotation: any, download = false) {
 
   // Draw TO and Date boxes
   // Outer rectangle for metadata
-  doc.rect(marginX, currentY, 170, 14);
+  doc.rect(marginX, currentY, 170, 13);
   // Vertical line separating TO and Date
-  doc.line(110, currentY, 110, currentY + 14);
+  doc.line(110, currentY, 110, currentY + 13);
 
   // Write TO details
   doc.setFontSize(9);
