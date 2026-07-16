@@ -191,15 +191,15 @@ export async function generateQuotationPdf(quotation: any, download = false) {
   headStyles: {
     fillColor: [255, 255, 255],
     fontStyle: 'bold',
-    halign: 'left',
+    halign: 'center',
     lineWidth: 0.2,
     lineColor: [0, 0, 0],
   },
   columnStyles: {
     0: { cellWidth: 80 },
     1: { cellWidth: 15, halign: 'center' },
-    2: { cellWidth: 35, halign: 'right' },
-    3: { cellWidth: 40, halign: 'right' },
+    2: { cellWidth: 35, halign: 'center' },
+    3: { cellWidth: 40, halign: 'center' },
   },
   head: [['DESCRIPTION', 'YEAR', 'PER DAY RATE', 'TOTAL']],
   body: tableBody,
