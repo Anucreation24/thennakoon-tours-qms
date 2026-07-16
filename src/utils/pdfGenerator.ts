@@ -1,22 +1,41 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 // Helper to convert image URL to base64
 async function getBase64ImageFromUrl(imageUrl: string): Promise<string> {
   const res = await fetch(imageUrl);
+
+  if (!res.ok) {
+    throw new Error(
+      `Failed to load image: ${imageUrl} (${res.status} ${res.statusText})`
+    );
+  }
+
+  const contentType = res.headers.get('content-type') || '';
+
+  if (!contentType.startsWith('image/')) {
+    throw new Error(
+      `Invalid image response from ${imageUrl}. Content-Type: ${contentType}`
+    );
+  }
+
   const blob = await res.blob();
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener(
-      'load',
-      function () {
-        resolve(reader.result as string);
-      },
-      false
-    );
+
+    reader.addEventListener('load', () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('Failed to convert image to base64'));
+      }
+    });
+
     reader.onerror = () => {
       reject(new Error('Failed to convert image to base64'));
     };
+
     reader.readAsDataURL(blob);
   });
 }
@@ -157,37 +176,37 @@ export async function generateQuotationPdf(quotation: any, download = false) {
     { content: `LKR ${Number(quotation.grand_total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', halign: 'right' } }
   ]);
 
-  (doc as any).autoTable({
-    startY: currentY,
-    margin: { left: marginX, right: marginX },
-    theme: 'plain',
-    styles: {
-      fontSize: 8.5,
-      cellPadding: 3,
-      textColor: [0, 0, 0],
-      lineColor: [0, 0, 0],
-      lineWidth: 0.2,
-      font: 'Helvetica'
-    },
-    headStyles: {
-      fillColor: [255, 255, 255],
-      fontStyle: 'bold',
-      halign: 'left',
-      lineWidth: 0.2,
-      lineColor: [0, 0, 0]
-    },
-    columnStyles: {
-      0: { cellWidth: 80 }, // Description
-      1: { cellWidth: 15, halign: 'center' }, // Year
-      2: { cellWidth: 35, halign: 'right' }, // Per Day Rate
-      3: { cellWidth: 40, halign: 'right' }  // Total
-    },
-    head: [['DESCRIPTION', 'YEAR', 'PER DAY RATE', 'TOTAL']],
-    body: tableBody,
-    didDrawPage: (data: any) => {
-      currentY = data.cursor.y + 8;
-    }
-  });
+  autoTable(doc, {
+  startY: currentY,
+  margin: { left: marginX, right: marginX },
+  theme: 'plain',
+  styles: {
+    fontSize: 8.5,
+    cellPadding: 3,
+    textColor: [0, 0, 0],
+    lineColor: [0, 0, 0],
+    lineWidth: 0.2,
+    font: 'Helvetica',
+  },
+  headStyles: {
+    fillColor: [255, 255, 255],
+    fontStyle: 'bold',
+    halign: 'left',
+    lineWidth: 0.2,
+    lineColor: [0, 0, 0],
+  },
+  columnStyles: {
+    0: { cellWidth: 80 },
+    1: { cellWidth: 15, halign: 'center' },
+    2: { cellWidth: 35, halign: 'right' },
+    3: { cellWidth: 40, halign: 'right' },
+  },
+  head: [['DESCRIPTION', 'YEAR', 'PER DAY RATE', 'TOTAL']],
+  body: tableBody,
+  didDrawPage: (data) => {
+    currentY = data.cursor?.y ? data.cursor.y + 8 : currentY;
+  },
+});
 
   // 7. Special Notes Section
   if (quotation.special_notes && quotation.special_notes.length > 0) {
