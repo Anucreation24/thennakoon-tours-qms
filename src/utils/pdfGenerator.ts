@@ -118,6 +118,117 @@ function formatRentalDate(value: string): string {
   });
 }
 
+/**
+ * Draws a justified paragraph.
+ *
+ * The final line is left aligned because stretching the final
+ * line usually creates very large spaces between words.
+ */
+function drawJustifiedText(
+  doc: jsPDF,
+  text: string,
+  startX: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const cleanText = text
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleanText) {
+    return startY;
+  }
+
+  const lines = doc.splitTextToSize(
+    cleanText,
+    maxWidth
+  ) as string[];
+
+  let currentLineY = startY;
+
+  lines.forEach((line, lineIndex) => {
+    const trimmedLine = line.trim();
+    const isLastLine =
+      lineIndex === lines.length - 1;
+
+    const words = trimmedLine
+      .split(/\s+/)
+      .filter(Boolean);
+
+    /*
+     * Keep the final line left aligned.
+     * Also avoid justification when a line contains
+     * fewer than three words.
+     */
+    if (
+      isLastLine ||
+      words.length < 3
+    ) {
+      doc.text(
+        trimmedLine,
+        startX,
+        currentLineY
+      );
+
+      currentLineY += lineHeight;
+      return;
+    }
+
+    const wordsWidth = words.reduce(
+      (total, word) =>
+        total + doc.getTextWidth(word),
+      0
+    );
+
+    const gaps = words.length - 1;
+    const availableSpacing =
+      maxWidth - wordsWidth;
+
+    /*
+     * If the calculated spacing is invalid or excessive,
+     * render the line normally.
+     */
+    if (
+      availableSpacing <= 0 ||
+      gaps <= 0
+    ) {
+      doc.text(
+        trimmedLine,
+        startX,
+        currentLineY
+      );
+
+      currentLineY += lineHeight;
+      return;
+    }
+
+    const spaceBetweenWords =
+      availableSpacing / gaps;
+
+    let currentX = startX;
+
+    words.forEach((word, wordIndex) => {
+      doc.text(
+        word,
+        currentX,
+        currentLineY
+      );
+
+      currentX +=
+        doc.getTextWidth(word);
+
+      if (wordIndex < words.length - 1) {
+        currentX += spaceBetweenWords;
+      }
+    });
+
+    currentLineY += lineHeight;
+  });
+
+  return currentLineY;
+}
+
 export async function generateQuotationPdf(
   quotation: any,
   download = false
@@ -137,8 +248,8 @@ export async function generateQuotationPdf(
    * Letterhead background
    */
   const letterheadEnabled =
-    quotation.company_snapshot?.letterhead_enabled !==
-    false;
+    quotation.company_snapshot
+      ?.letterhead_enabled !== false;
 
   if (letterheadEnabled) {
     try {
@@ -170,7 +281,9 @@ export async function generateQuotationPdf(
       if (base64Letterhead) {
         doc.addImage(
           base64Letterhead,
-          getImageFormat(base64Letterhead),
+          getImageFormat(
+            base64Letterhead
+          ),
           0,
           0,
           pageWidth,
@@ -193,9 +306,17 @@ export async function generateQuotationPdf(
    * Quotation heading
    */
   doc.setTextColor(0, 0, 0);
-  doc.setFont('Helvetica', 'bold');
+  doc.setFont(
+    'Helvetica',
+    'bold'
+  );
   doc.setFontSize(22);
-  doc.text('Quotation', marginX, currentY);
+
+  doc.text(
+    'Quotation',
+    marginX,
+    currentY
+  );
 
   currentY += 8;
 
@@ -224,16 +345,22 @@ export async function generateQuotationPdf(
 
   doc.setFontSize(9);
 
-  // Customer label
-  doc.setFont('Helvetica', 'bold');
+  doc.setFont(
+    'Helvetica',
+    'bold'
+  );
+
   doc.text(
     'TO :',
     marginX + 3,
     currentY + 4
   );
 
-  // Customer name
-  doc.setFont('Helvetica', 'normal');
+  doc.setFont(
+    'Helvetica',
+    'normal'
+  );
+
   doc.text(
     quotation.customer_name ||
       'Whom May Concern',
@@ -241,7 +368,6 @@ export async function generateQuotationPdf(
     currentY + 4
   );
 
-  // Rental period
   const startDate =
     formatRentalDate(
       quotation.rental_start_date
@@ -257,22 +383,32 @@ export async function generateQuotationPdf(
       ? `${startDate} - ${endDate}`
       : 'Rental Period';
 
-  doc.setFont('Helvetica', 'bold');
+  doc.setFont(
+    'Helvetica',
+    'bold'
+  );
+
   doc.text(
     rentalPeriod,
     marginX + 15,
     currentY + 9
   );
 
-  // Quotation date
-  doc.setFont('Helvetica', 'bold');
+  doc.setFont(
+    'Helvetica',
+    'bold'
+  );
+
   doc.text(
     'Date:',
     metadataDividerX + 3,
     currentY + 4
   );
 
-  doc.setFont('Helvetica', 'normal');
+  doc.setFont(
+    'Helvetica',
+    'normal'
+  );
 
   const quotationDate =
     formatQuotationDate(
@@ -285,9 +421,6 @@ export async function generateQuotationPdf(
     currentY + 4
   );
 
-  /*
-   * Small spacing after metadata box.
-   */
   currentY += 16;
 
   /*
@@ -307,10 +440,14 @@ export async function generateQuotationPdf(
     vehicleName.toUpperCase();
 
   const extraKmText =
-    Number(quotation.extra_km_rate) > 0
+    Number(
+      quotation.extra_km_rate
+    ) > 0
       ? `(Rs.${Number(
           quotation.extra_km_rate
-        ).toLocaleString('en-US')}/- per extra kilometer)`
+        ).toLocaleString(
+          'en-US'
+        )}/- per extra kilometer)`
       : '';
 
   const tableBody: any[] = [
@@ -360,7 +497,9 @@ export async function generateQuotationPdf(
   }
 
   if (
-    Number(quotation.tax_amount) > 0
+    Number(
+      quotation.tax_amount
+    ) > 0
   ) {
     tableBody.push([
       'Tax Charges',
@@ -373,7 +512,9 @@ export async function generateQuotationPdf(
   }
 
   if (
-    Number(quotation.discount) > 0
+    Number(
+      quotation.discount
+    ) > 0
   ) {
     tableBody.push([
       'Discount',
@@ -417,10 +558,12 @@ export async function generateQuotationPdf(
 
   autoTable(doc, {
     startY: currentY,
+
     margin: {
       left: marginX,
       right: marginX,
     },
+
     theme: 'plain',
 
     head: [
@@ -479,7 +622,8 @@ export async function generateQuotationPdf(
 
     didDrawPage: (data) => {
       if (data.cursor?.y) {
-        currentY = data.cursor.y + 8;
+        currentY =
+          data.cursor.y + 8;
       }
     },
   });
@@ -496,7 +640,10 @@ export async function generateQuotationPdf(
 
   if (specialNotes.length > 0) {
     doc.setTextColor(0, 0, 0);
-    doc.setFont('Helvetica', 'bold');
+    doc.setFont(
+      'Helvetica',
+      'bold'
+    );
     doc.setFontSize(9);
 
     doc.rect(
@@ -512,9 +659,6 @@ export async function generateQuotationPdf(
       currentY + 3.6
     );
 
-    /*
-     * Space below heading.
-     */
     currentY += 10;
 
     doc.setFont(
@@ -555,11 +699,16 @@ export async function generateQuotationPdf(
   }
 
   /*
-   * Important note
+   * Important note — justified text only
    */
   if (quotation.important_notes) {
     doc.setTextColor(0, 0, 0);
-    doc.setFont('Helvetica', 'bold');
+
+    doc.setFont(
+      'Helvetica',
+      'bold'
+    );
+
     doc.setFontSize(9);
 
     doc.rect(
@@ -575,34 +724,31 @@ export async function generateQuotationPdf(
       currentY + 3.6
     );
 
-    /*
-     * Space below heading.
-     */
     currentY += 10;
 
     doc.setFont(
       'Helvetica',
       'normal'
     );
+
     doc.setFontSize(8.5);
 
-    const splitImportant =
-      doc.splitTextToSize(
-        String(
-          quotation.important_notes
-        ),
-        162
+    const importantText =
+      String(
+        quotation.important_notes
       );
 
-    doc.text(
-      splitImportant,
-      marginX + 4,
-      currentY
-    );
+    currentY =
+      drawJustifiedText(
+        doc,
+        importantText,
+        marginX + 4,
+        currentY,
+        162,
+        4.5
+      );
 
-    currentY +=
-      splitImportant.length * 4.5 +
-      5;
+    currentY += 5;
   }
 
   /*
@@ -620,6 +766,7 @@ export async function generateQuotationPdf(
 
     doc.setTextColor(0, 0, 0);
     doc.setDrawColor(0, 0, 0);
+
     doc.rect(
       marginX,
       currentY,
@@ -631,6 +778,7 @@ export async function generateQuotationPdf(
       'Helvetica',
       'bold'
     );
+
     doc.setFontSize(9);
 
     doc.text(
@@ -643,6 +791,7 @@ export async function generateQuotationPdf(
       'Helvetica',
       'normal'
     );
+
     doc.setFontSize(8.5);
 
     doc.text(
@@ -699,7 +848,9 @@ export async function generateQuotationPdf(
 
         doc.addImage(
           base64Qr,
-          getImageFormat(base64Qr),
+          getImageFormat(
+            base64Qr
+          ),
           qrX,
           currentY,
           32,
@@ -707,10 +858,12 @@ export async function generateQuotationPdf(
         );
 
         doc.setTextColor(0, 0, 0);
+
         doc.setFont(
           'Helvetica',
           'bold'
         );
+
         doc.setFontSize(8);
 
         doc.text(
@@ -749,6 +902,7 @@ export async function generateQuotationPdf(
       'Helvetica',
       'bold'
     );
+
     doc.setFontSize(9);
 
     doc.text(
@@ -763,6 +917,7 @@ export async function generateQuotationPdf(
       'Helvetica',
       'bold'
     );
+
     doc.setFontSize(10);
 
     doc.text(
@@ -778,7 +933,9 @@ export async function generateQuotationPdf(
         'Helvetica',
         'normal'
       );
+
       doc.setFontSize(8.5);
+
       doc.setTextColor(
         80,
         80,
@@ -798,7 +955,9 @@ export async function generateQuotationPdf(
       'Helvetica',
       'normal'
     );
+
     doc.setFontSize(8);
+
     doc.setTextColor(
       100,
       100,
