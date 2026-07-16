@@ -302,33 +302,44 @@ currentY += 4;
   }
 
   // 10. Prepared By / Signature line
-  if (currentY < 250) {
-    const preparedByName =
-     quotation.prepared_by_name || 'Staff Member';
+  // 10. Prepared By / Signature block
+    if (currentY < 250) {
+      const preparedByName =
+        quotation.prepared_by_name || 'Staff Member';
 
-    const preparedByRole =
-     quotation.prepared_by_role || '';
+      const preparedByRole =
+        quotation.prepared_by_role || '';
+
+      doc.setTextColor(0, 0, 0);
 
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Prepared By', marginX, currentY);
+    doc.setFontSize(9);
+    doc.text('Prepared By:', marginX, currentY);
 
-    currentY += 6;
+    currentY += 5;
 
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(10);
     doc.text(preparedByName, marginX, currentY);
 
-    currentY += 5;
+  if (preparedByRole) {
+    currentY += 4.5;
 
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(90);
-
+    doc.setFontSize(8.5);
+    doc.setTextColor(80, 80, 80);
     doc.text(preparedByRole, marginX, currentY);
-
-    doc.setTextColor(0);
   }
+
+    currentY += 4.5;
+
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Thennakoon Tours (Pvt) Ltd', marginX, currentY);
+
+    doc.setTextColor(0, 0, 0);
+}
 
   // 11. Trigger Download or Open Preview in New Tab
   const sanitizedCustomerName = (quotation.customer_name || 'Customer')
