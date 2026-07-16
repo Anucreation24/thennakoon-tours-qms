@@ -168,12 +168,9 @@ export default function QuotationsPage() {
     const profileId = quotation.prepared_by || quotation.created_by;
 
     if (profileId) {
-      const {
-        data: preparedByProfile,
-        error: profileError,
-      } = await supabase
+      const { data: preparedByProfile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, role')
         .eq('id', profileId)
         .maybeSingle();
 
@@ -184,11 +181,14 @@ export default function QuotationsPage() {
       }
     }
 
-       return {
+         return {
         ...quotation,
           prepared_by_name: preparedByName,
-          prepared_by_role: preparedByProfile?.role || 'Staff',
-    };
+          prepared_by_role:
+            roleMap[
+              (preparedByProfile?.role as keyof typeof roleMap)
+          ] ?? 'Staff Member',
+      };
   };
 
   const handlePreviewPdf = async (quotation: QuotationList) => {
