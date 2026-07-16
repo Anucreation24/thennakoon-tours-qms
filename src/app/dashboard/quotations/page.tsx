@@ -164,31 +164,44 @@ export default function QuotationsPage() {
     }
 
     let preparedByName = 'Staff Member';
+let preparedByRole = 'Staff Member';
 
-    const profileId = quotation.prepared_by || quotation.created_by;
+const profileId = quotation.prepared_by || quotation.created_by;
 
-    if (profileId) {
-      const { data: preparedByProfile } = await supabase
-        .from('profiles')
-        .select('full_name, role')
-        .eq('id', profileId)
-        .maybeSingle();
+if (profileId) {
+  const {
+    data: preparedByProfile,
+    error: profileError,
+  } = await supabase
+    .from('profiles')
+    .select('full_name, role')
+    .eq('id', profileId)
+    .maybeSingle();
 
-      if (profileError) {
-        console.error('Profile lookup failed:', profileError);
-      } else if (preparedByProfile?.full_name) {
-        preparedByName = preparedByProfile.full_name;
-      }
-    }
+  if (profileError) {
+    console.error('Profile lookup failed:', profileError);
+  } else if (preparedByProfile) {
+    preparedByName =
+      preparedByProfile.full_name || 'Staff Member';
 
-         return {
-        ...quotation,
-          prepared_by_name: preparedByName,
-          prepared_by_role:
-            roleMap[
-              (preparedByProfile?.role as keyof typeof roleMap)
-          ] ?? 'Staff Member',
-      };
+    const roleMap = {
+  owner: 'Director',
+  admin: 'Operations Manager',
+  staff: 'Marketing Assistant',
+} as const;
+
+preparedByRole =
+  roleMap[
+    preparedByProfile.role as keyof typeof roleMap
+  ] || 'Staff Member';
+  }
+}
+
+return {
+  ...quotation,
+  prepared_by_name: preparedByName,
+  prepared_by_role: preparedByRole,
+};
   };
 
   const handlePreviewPdf = async (quotation: QuotationList) => {
