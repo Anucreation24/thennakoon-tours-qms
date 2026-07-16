@@ -304,9 +304,30 @@ currentY += 4;
   // 10. Prepared By / Signature line
   if (currentY < 250) {
     const preparedByName = quotation.prepared_by_name || 'Staff Member';
+    const preparedByRole = quotation.prepared_by_role || 'Marketing Assistant';
+
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(9.5);
-    doc.text(`Prepared By: ${preparedByName}`, marginX, currentY);
+    doc.setFontSize(10);
+    doc.text('Prepared By', marginX, currentY);
+
+    currentY += 6;
+
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(preparedByName, marginX, currentY);
+
+    currentY += 5;
+
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(90);
+    doc.text(preparedByRole, marginX, currentY);
+
+    currentY += 5;
+
+    doc.setFontSize(8);
+    doc.text('Thennakoon Tours (Pvt) Ltd', marginX, currentY);
+    doc.setTextColor(0);
   }
 
   // 11. Trigger Download or Open Preview in New Tab
