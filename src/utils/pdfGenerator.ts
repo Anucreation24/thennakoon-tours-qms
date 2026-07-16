@@ -303,8 +303,11 @@ currentY += 4;
 
   // 10. Prepared By / Signature line
   if (currentY < 250) {
-    const preparedByName = quotation.prepared_by_name || 'Staff Member';
-    const preparedByRole = quotation.prepared_by_role || 'Marketing Assistant';
+    const preparedByName =
+     quotation.prepared_by_name || 'Staff Member';
+
+    const preparedByRole =
+     quotation.prepared_by_role || '';
 
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(10);
@@ -321,12 +324,9 @@ currentY += 4;
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(90);
+
     doc.text(preparedByRole, marginX, currentY);
 
-    currentY += 5;
-
-    doc.setFontSize(8);
-    doc.text('Thennakoon Tours (Pvt) Ltd', marginX, currentY);
     doc.setTextColor(0);
   }
 
