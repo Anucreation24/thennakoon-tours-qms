@@ -184,11 +184,10 @@ export default function QuotationsPage() {
       }
     }
 
-    return {
-      ...quotation,
-        prepared_by_name: preparedByName,
-        prepared_by_role:
-          roleMap[preparedByProfile?.role as keyof typeof roleMap] || 'Staff',
+       return {
+        ...quotation,
+          prepared_by_name: preparedByName,
+          prepared_by_role: preparedByProfile?.role || 'Staff',
     };
   };
 
