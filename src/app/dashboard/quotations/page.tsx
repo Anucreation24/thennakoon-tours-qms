@@ -184,10 +184,18 @@ export default function QuotationsPage() {
       }
     }
 
+    const roleMap = {
+        owner: 'Director',
+        admin: 'Operations Manager',
+        staff: 'Marketing Assistant',
+};
+
     return {
       ...quotation,
-      prepared_by_name: preparedByName,
-    };
+        prepared_by_name: preparedByName,
+        prepared_by_role:
+          roleMap[preparedByProfile?.role as keyof typeof roleMap] || 'Staff',
+};
   };
 
   const handlePreviewPdf = async (quotation: QuotationList) => {
