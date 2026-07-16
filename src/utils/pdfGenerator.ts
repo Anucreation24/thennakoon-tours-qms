@@ -91,9 +91,9 @@ export async function generateQuotationPdf(quotation: any, download = false) {
 
   // Draw TO and Date boxes
   // Outer rectangle for metadata
-  doc.rect(marginX, currentY, 170, 18);
+  doc.rect(marginX, currentY, 170, 14);
   // Vertical line separating TO and Date
-  doc.line(110, currentY, 110, currentY + 18);
+  doc.line(110, currentY, 110, currentY + 14);
 
   // Write TO details
   doc.setFontSize(9);
@@ -107,7 +107,7 @@ export async function generateQuotationPdf(quotation: any, download = false) {
   const endDateStr = quotation.rental_end_date ? new Date(quotation.rental_end_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : '';
   const rentalPeriod = startDateStr && endDateStr ? `${startDateStr} - ${endDateStr}` : 'Rental Period';
   doc.setFont('Helvetica', 'bold');
-  doc.text(rentalPeriod, marginX + 15, currentY + 12);
+  doc.text('TO :',rentalPeriod, marginX + 15, currentY + 12);
 
   // Write Date details
   doc.setFont('Helvetica', 'bold');
@@ -173,7 +173,7 @@ export async function generateQuotationPdf(quotation: any, download = false) {
     { content: '', styles: { border: [false, false, false, false] } },
     { content: '', styles: { border: [false, false, false, false] } },
     { content: '', styles: { border: [false, false, false, false] } },
-    { content: `LKR ${Number(quotation.grand_total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', halign: 'right' } }
+    { content: `LKR ${Number(quotation.grand_total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', halign: 'center' } }
   ]);
 
   autoTable(doc, {
