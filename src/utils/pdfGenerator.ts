@@ -212,33 +212,52 @@ export async function generateQuotationPdf(quotation: any, download = false) {
   if (quotation.special_notes && quotation.special_notes.length > 0) {
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(9);
-    doc.rect(marginX, currentY, 170, 5, 'S');
-    doc.text('SPECIAL NOTES', marginX + 3, currentY + 3.8);
-    currentY += 7;
+
+    doc.rect(marginX, currentY, 170, 5);
+    doc.text('SPECIAL NOTES', marginX + 3, currentY + 3.6);
+
+  // Title එකට පහල gap එක
+    currentY += 10;
 
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(8.5);
+
     quotation.special_notes.forEach((note: string) => {
-      const splitNote = doc.splitTextToSize(`• ${note}`, 164);
-      doc.text(splitNote, marginX + 3, currentY);
-      currentY += (splitNote.length * 4);
-    });
-    currentY += 3;
+    const splitNote = doc.splitTextToSize(`• ${note}`, 164);
+
+    doc.text(splitNote, marginX + 4, currentY);
+
+  // Line spacing
+    currentY += splitNote.length * 5;
+});
+
+// Section spacing
+currentY += 4;
   }
 
   // 8. Important Section
   if (quotation.important_notes) {
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(9);
-    doc.rect(marginX, currentY, 170, 5, 'S');
-    doc.text('IMPORTANT', marginX + 3, currentY + 3.8);
-    currentY += 7;
+
+    doc.rect(marginX, currentY, 170, 5);
+    doc.text('IMPORTANT', marginX + 3, currentY + 3.6);
+
+  // Title එකට පහල gap
+    currentY += 10;
 
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(8.5);
-    const splitImportant = doc.splitTextToSize(quotation.important_notes, 164);
-    doc.text(splitImportant, marginX + 3, currentY);
-    currentY += (splitImportant.length * 4) + 4;
+
+    const splitImportant = doc.splitTextToSize(
+    quotation.important_notes,
+    164
+);
+
+    doc.text(splitImportant, marginX + 4, currentY);
+
+  // Better line spacing
+    currentY += splitImportant.length * 5 + 4;
   }
 
   // 9. Bank Details & QR Code side-by-side
