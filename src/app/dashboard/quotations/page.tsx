@@ -187,6 +187,7 @@ if (profileId) {
     const roleMap = {
   owner: 'Director',
   admin: 'Admin & Marketing Assistant',
+  staff: 'Sales Dep',
 
 } as const;
 
